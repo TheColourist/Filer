@@ -1,18 +1,103 @@
 <html>
-  <div>
-      <input type="file" id="filepicker" name="fileList" webkitdirectory multiple />
-      <ul id="listing"></ul>
+  <style>
+    div.file-organizer {
+      display: flex;
+      justify-content: space-evenly;
+    }
+    li[checked] {
+      background-color: bisque;
+    }
+  </style>
+  <div id="file-selector">
+    <input type="file" id="filepicker" name="fileList" webkitdirectory multiple />
   </div>
-  <script>
-    document.getElementById("filepicker").addEventListener("change", function(event) {
-      let output = document.getElementById("listing");
-      let files = event.target.files;
+  <div class="file-organizer">
+    <div>
+      <input type="text" />
+      <ul id="list-1"></ul>
+    </div>
+    <div>
+      <button id="left">Left</button>
+      <button id="right">Right</button>
+    </div>
+    <div>
+      <input type="text" />
+      <ul id="list-2"></ul>
+    </div>
+  </div>
 
-      for (let i=0; i<files.length; i++) {
-        let item = document.createElement("li");
-        item.innerHTML = files[i].webkitRelativePath;
-        output.appendChild(item);
-      };
-    }, false);
+  <script>
+    const filePicker = document.getElementById("filepicker")
+    const firstList = document.getElementById("list-1")
+    const secondList = document.getElementById("list-2")
+    const goLeftButton = document.getElementById("left")
+    const goRightButton = document.getElementById("right")
+
+    let files = []
+    let bucketOne = []
+    let bucketTwo = []
+
+    function checkingItem(domElement) {
+      domElement.toggleAttribute("checked")
+    }
+
+    function updateLists() {
+      while (firstList.firstChild) {
+        firstList.removeChild(firstList.firstChild)
+      }
+      while (secondList.firstChild) {
+        secondList.removeChild(secondList.firstChild)
+      }
+      for (let i = 0; i < bucketOne.length; i++) {
+        let item = document.createElement("li")
+        item.setAttribute("id", "first-list-item-" + i)
+        item.addEventListener("click", function (e) {
+          checkingItem(e.target)
+        })
+        item.innerHTML = bucketOne[i].webkitRelativePath ? bucketOne[i].webkitRelativePath : bucketOne[i].innerHTML 
+        firstList.appendChild(item)
+      }
+      for (let i = 0; i < bucketTwo.length; i++) {
+        let item = document.createElement("li")
+        item.setAttribute("id", "second-list-item-" + i)
+        item.addEventListener("click", function (e) {
+          checkingItem(e.target)
+        })
+        item.innerHTML = bucketTwo[i].webkitRelativePath ? bucketTwo[i].webkitRelativePath : bucketTwo[i].innerHTML
+        secondList.appendChild(item)
+      }
+    }
+
+    filePicker.addEventListener("change", function(e) {
+      files = e.target.files
+      bucketOne = files
+      filePicker.setAttribute('disabled', true)
+      updateLists()
+    })
+
+    goRightButton.addEventListener("click", function() {
+      bucketOne = []
+      for (let i = 0; i < firstList.childNodes.length; i++) {
+        if(firstList.childNodes[i].hasAttribute("checked")) {
+          bucketTwo.push(firstList.childNodes[i])
+        } else {
+          bucketOne.push(firstList.childNodes[i])
+        }
+      }
+      updateLists()
+    })
+
+    goLeftButton.addEventListener("click", function() {
+      bucketTwo = []
+      for (let i = 0; i < secondList.childNodes.length; i++) {
+        if(secondList.childNodes[i].hasAttribute("checked")) {
+          bucketOne.push(secondList.childNodes[i])
+        } else {
+          bucketTwo.push(secondList.childNodes[i])
+        }
+      }
+      updateLists()
+    })
+
   </script>
 </html>
